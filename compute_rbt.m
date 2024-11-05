@@ -14,5 +14,5 @@ function Plist_world = compute_rbt(x,y,theta,Plist_box)
     cosd(theta) -sind(theta); 
     sind(theta) cosd(theta);
     ]; % transformation matrix
-    Plist_world = transpose(R*transpose(Plist_box)+[x;y]);
+    Plist_world = R*Plist_box+[x;y];
 end

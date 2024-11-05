@@ -19,13 +19,13 @@ Plist_box = [
     5 5;
     5 -5;
     -5 -5;
-    ];
+    ]';
 Plist_world = compute_rbt(x,y,theta,Plist_box);
 
 figure(1);
 hold on;
-plot(Plist_box(:,1),Plist_box(:,2),'b');
-plot(Plist_world(:,1),Plist_world(:,2),'r');
+plot(Plist_box(1,:),Plist_box(2,:),'b');
+plot(Plist_world(1,:),Plist_world(2,:),'r');
 xlim([-10 10]);
 ylim([-10 10]);
 axis square;
