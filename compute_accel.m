@@ -21,20 +21,21 @@
 %ay: y acceleration of the box
 %atheta: angular acceleration of the box
 function [ax,ay,atheta] = compute_accel(x,y,theta,box_params)
-    F_total = [0; 0];
-    T_total = [0; 0];
+    F_total = [0; box_params.m*box_params.g];
+    T_total = 0;
     PC = [x; y];
     for i=1:length(box_params.k_list)
         k_temp = box_params.k_list(i);
         l0_temp = box_params.l0_list(i);
         PA_temp = box_params.P_world(:,i);
-        PB_temp = box_params.P_box(:,i);
+        PB_temp = compute_rbt(x,y,theta,box_params.P_box(:,i));
         F_temp = compute_spring_force(k_temp,l0_temp,PA_temp,PB_temp);
         F_total = F_total + F_temp;
-        T_temp = cross((PB_temp-PC),F_temp);
+        T_temp = (PB_temp-PC)'*F_temp;
         T_total = T_total + T_temp;
     end
     linear_accel = F_total/box_params.m;
     ax = linear_accel(1);
     ay = linear_accel(2);
+    atheta = T_total / box_params.I;
 end

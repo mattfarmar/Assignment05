@@ -34,6 +34,8 @@ axis square;
 
 box_params = struct();
 box_params.m = 5;
+box_params.I = 10;
+box_params.g = -9.81;
 box_params.k_list = [10 10 10 10];
 box_params.l0_list = [3 3 3 3];
 box_params.P_world = [
@@ -45,4 +47,4 @@ box_params.P_box = [
 3 3 3 3;
 ];
 
-compute_accel(0,0,0,box_params)
+[ax,ay,atheta] = compute_accel(0,0,0,box_params);
