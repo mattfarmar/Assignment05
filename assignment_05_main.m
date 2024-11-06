@@ -1,30 +1,111 @@
 %%% ASSIGNMENT 5 %%%
+%% Struct
+DormandPrince = struct();
+DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
+DormandPrince.B = [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0;...
+5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+DormandPrince.A = [0,0,0,0,0,0,0;
+1/5, 0, 0, 0,0,0,0;...
+3/40, 9/40, 0, 0, 0, 0,0;...
+44/45, -56/15, 32/9, 0, 0, 0,0;...
+19372/6561, -25360/2187, 64448/6561, -212/729, 0, 0,0;...
+9017/3168, -355/33, 46732/5247, 49/176, -5103/18656, 0,0;...
+35/384, 0, 500/1113, 125/192, -2187/6784, 11/84,0];
+%% Test compute_spring_force
+
+k = 10;
+l0 = 3;
+PA = [0 0];
+PB = [3 3];
+
+F = compute_spring_force(k,l0,PA,PB);
+
+%% Test Plist_world
+theta = 45;
+x = 0;
+y = 0;
+Plist_box = [
+    -5 -5;
+    -5 5;
+    5 5;
+    5 -5;
+    -5 -5;
+    ]';
+Plist_world = compute_rbt(x,y,theta,Plist_box);
+
+figure(1);
+hold on;
+plot(Plist_box(1,:),Plist_box(2,:),'b');
+plot(Plist_world(1,:),Plist_world(2,:),'r');
+xlim([-10 10]);
+ylim([-10 10]);
+axis square;
+
+%% Test compute_accel
+
+box_params = struct();
+box_params.m = 5;
+box_params.I = 10;
+box_params.g = -9.81;
+box_params.k_list = [10 10 10 10];
+box_params.l0_list = [3 3 3 3];
+box_params.P_world = [
+0 0 0 0;
+0 0 0 0;
+];
+box_params.P_box = [
+3 3 3 3;
+3 3 3 3;
+];
+
+[ax,ay,atheta] = compute_accel(0,0,0,box_params);
+
+simulate_box()
 
 %% Run Simulation
 
-function simulate_box()
+function X_list = simulate_box()
     %define system parameters
     box_params = struct();
     box_params.m = 5;
     box_params.I = 10;
-    box_params.k_list = [];
-    box_params.l0_list = [];
-    box_params.P_world = [];
-    box_params.P_box = [];
+    box_params.k_list = [3 3 3 3];
+    box_params.l0_list = [4 4 4 4];
+    box_params.P_world = [0 0 5 5 0; 0 5 5 0 0];
+    box_params.P_box = [1 1 3 3 1; 1 3 3 1 1];
+    box_params.g = -9.81;
     %load the system parameters into the rate function
     %via an anonymous function
     my_rate_func = @(t_in,V_in) box_rate_func(t_in,V_in,box_params);
-    x0 = 0;
-    y0 = 0;
+    x0 = 2.5;
+    y0 = 2.5;
     theta0 = 0;
-    vx0 = 0;
-    vy0 = 0;
-    omega0 = 0;
+    vx0 = 3;
+    vy0 = 3;
+    omega0 = 3;
     V0 = [x0;y0;theta0;vx0;vy0;omega0];
     tspan = linspace(1,10,100);
+    h_ref = 0.001;
+    p = 3;
+    error_desired = 0.0001;
+
+    DormandPrince = struct();
+    DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
+    DormandPrince.B = [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0;...
+    5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+    DormandPrince.A = [0,0,0,0,0,0,0;
+    1/5, 0, 0, 0,0,0,0;...
+    3/40, 9/40, 0, 0, 0, 0,0;...
+    44/45, -56/15, 32/9, 0, 0, 0,0;...
+    19372/6561, -25360/2187, 64448/6561, -212/729, 0, 0,0;...
+    9017/3168, -355/33, 46732/5247, 49/176, -5103/18656, 0,0;...
+    35/384, 0, 500/1113, 125/192, -2187/6784, 11/84,0];
     %run the integration
-    % [tlist,Vlist] = your_integrator(my_rate_func,tspan,V0,...)
+    [t_list,X_list,h_avg, num_evals, percent_failed] = explicit_RK_variable_step_integration ...
+(my_rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired)
+
 end
+
 
 function spring_plotting_example()
     num_zigs = 5;
@@ -74,53 +155,108 @@ function spring_plot_struct = initialize_spring_plot(num_zigs,w)
     spring_plot_struct.point_plot = plot(0,0,'ro','markerfacecolor','r','markersize',7);
 end
 
+%% RK Variable Step Integration
+%Runs numerical integration arbitrary RK method using variable time steps
+%INPUTS:
+%rate_func_in: the function used to compute dXdt. rate_func_in will
+% have the form: dXdt = rate_func_in(t,X) (t is before X)
+%tspan: a two element vector [t_start,t_end] that denotes the integration endpoints
+%X0: the vector describing the initial conditions, X(t_start)
+%h_ref: the desired value of the average step size (not the actual value)
+%BT_struct: a struct that contains the Butcher tableau
+% BT_struct.A: matrix of a_{ij} values
+% BT_struct.B: vector of b_i values
+% BT_struct.C: vector of c_i values
+%p: how error scales with step size (error = k*h^p)
+%error_desired: the desired local truncation error at each step
+%OUTPUTS:
+%t_list: the vector of times, [t_start;t_1;t_2;...;.t_end] that X is approximated at
+%X_list: the vector of X, [X0';X1';X2';...;(X_end)'] at each time step
+%h_avg: the average step size
+%num_evals: total number of calls made to rate_func_in during the integration
+function [t_list,X_list,h_avg, num_evals, percent_failed] = explicit_RK_variable_step_integration ...
+(rate_func_in,tspan,X0,h_ref,BT_struct,p,error_desired)
+    num_evals = 0;
+    t = tspan(1);
+    tf = tspan(2);
+    X_list = X0;
+    t_list = t; % change num_steps
+    XA = X0;
+
+    h = h_ref;
+
+    num_failed_steps = 0;
+
+    num_attempted_steps = 0;
+    while t<tf
+        num_attempted_steps = num_attempted_steps+1;
+        t_next = t+h;
+
+        if t_next>tf
+            h= tf-t;
+            t_next = tf;
+        end
+
+        [XB, num_evals_temp, h_next, redo] = explicit_RK_variable_step...
+                (rate_func_in,t,XA,h,BT_struct,p,error_desired);
+
+        num_evals = num_evals+num_evals_temp;
+        h = h_next;
+        
+        if ~redo
+            XA = XB;
+            t = t_next;
+            X_list(:,end+1) = XA;
+            t_list(end+1) = t;
+        else
+            num_failed_steps = num_failed_steps+1;
+        end
+
+    end
+
+    h_avg = (tspan(2)-tspan(1))/(length(t_list)-1);
+    percent_failed = num_failed_steps/num_attempted_steps;
+
+end
+
+%% RK Variable Step
+function [XB, num_evals, h_next, redo] = explicit_RK_variable_step...
+(rate_func_in,t,XA,h,BT_struct,p,error_desired)
+    alpha = 4; % btwn 1.5 and 10, inclusive
+    [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in,t,XA,h,BT_struct); %run 1 step of the solver (on original ts)
+    h_next = h*min(0.9*(error_desired/norm(XB1-XB2))^(1/p),alpha); % calculate h_next
+    XB = XB1;
+    estimated_error = norm(XB1 - XB2); % calculate error
+    redo = error_desired<estimated_error;
+end
+%% RK_step_embedded
+%This function computes the value of X at the next time step
+%for any arbitrary embedded RK method
+%INPUTS:
+%rate_func_in: the function used to compute dXdt. rate_func_in will
+% have the form: dXdt = rate_func_in(t,X) (t is before X)
+%t: the value of time at the current step
+%XA: the value of X(t)
+%h: the time increment for a single step i.e. delta_t = t_{n+1} - t_{n}
+%BT_struct: a struct that contains the Butcher tableau
+% BT_struct.A: matrix of a_{ij} values
+% BT_struct.B: vector of b_i values
+% BT_struct.C: vector of c_i values
+%OUTPUTS:
+%XB1: the approximate value for X(t+h) using the first row of the Tableau
+%XB2: the approximate value for X(t+h) using the second row of the Tableau
+%num_evals: A count of the number of times that you called
+% rate_func_in when computing the next step
+function [XB1, XB2, num_evals] = RK_step_embedded(rate_func_in,t,XA,h,BT_struct)
+    k = zeros(length(XA),length(BT_struct.B));
+    for i = 1:length(BT_struct.B)
+        k(:,i) = rate_func_in(t+BT_struct.C(i)*h, XA+h*(k*BT_struct.A(i,:)'));
+    end
+    XB1 = XA + h*(k*BT_struct.B(1,:)');
+    XB2 = XA + h*(k*BT_struct.B(2,:)');
+    num_evals = length(BT_struct.B);
+end
 
 
-%% Test compute_spring_force
 
-k = 10;
-l0 = 3;
-PA = [0 0];
-PB = [3 3];
 
-F = compute_spring_force(k,l0,PA,PB);
-
-%% Test Plist_world
-theta = 45;
-x = 0;
-y = 0;
-Plist_box = [
-    -5 -5;
-    -5 5;
-    5 5;
-    5 -5;
-    -5 -5;
-    ]';
-Plist_world = compute_rbt(x,y,theta,Plist_box);
-
-figure(1);
-hold on;
-plot(Plist_box(1,:),Plist_box(2,:),'b');
-plot(Plist_world(1,:),Plist_world(2,:),'r');
-xlim([-10 10]);
-ylim([-10 10]);
-axis square;
-
-%% Test compute_accel
-
-box_params = struct();
-box_params.m = 5;
-box_params.I = 10;
-box_params.g = -9.81;
-box_params.k_list = [10 10 10 10];
-box_params.l0_list = [3 3 3 3];
-box_params.P_world = [
-0 0 0 0;
-0 0 0 0;
-];
-box_params.P_box = [
-3 3 3 3;
-3 3 3 3;
-];
-
-[ax,ay,atheta] = compute_accel(0,0,0,box_params);
