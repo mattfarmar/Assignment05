@@ -59,7 +59,7 @@ box_params.P_box = [
 ];
 
 [ax,ay,atheta] = compute_accel(0,0,0,box_params);
-
+clf
 simulate_box()
 
 %% Run Simulation
@@ -72,7 +72,7 @@ function X_list = simulate_box()
     box_params.k_list = [3 3 3 3];
     box_params.l0_list = [4 4 4 4];
     box_params.P_world = [0 0 5 5 0; 0 5 5 0 0];
-    box_params.P_box = [1 1 3 3 1; 1 3 3 1 1];
+    box_params.P_box = [2 2 4 4 2; 2 4 4 2 2];
     box_params.g = -9.81;
     %load the system parameters into the rate function
     %via an anonymous function
@@ -104,7 +104,31 @@ function X_list = simulate_box()
     [t_list,X_list,h_avg, num_evals, percent_failed] = explicit_RK_variable_step_integration ...
 (my_rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired)
 
+    num_zigs = 5;
+    w = .1;
+    hold on;
+    spring_plot_struct = initialize_spring_plot(num_zigs,w);
+    axis equal; axis square;
+    axis([0,5,0,5]);
+    max(box_params.P_box, [], 'all') 
+    min(box_params.P_box, [], 'all')
+    dist = (max(box_params.P_box, [], 'all') - min(box_params.P_box, [], 'all')) / 2;
+    x_dist = [dist dist -dist -dist dist];
+    y_dist = [dist -dist -dist dist dist];
+    
+    %for j = 1:length(box_params.P_world)
+        for i = 1:length(t_list)
+            P1 = [box_params.P_world(1,1);box_params.P_world(2,1)];
+            P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist];
+            update_spring_plot(spring_plot_struct,P1,P2)
+            drawnow;
+            plot(X_list(1,i) - x_dist, X_list(2,i) - y_dist)
+            pause(0.1)
+        end
+    %end
+
 end
+
 
 
 function spring_plotting_example()
@@ -119,6 +143,7 @@ function spring_plotting_example()
         P2 = 2*[cos(theta);sin(theta)];
         update_spring_plot(spring_plot_struct,P1,P2)
         drawnow;
+        hold on
     end
 end
 %updates spring plotting object so that spring is plotted
