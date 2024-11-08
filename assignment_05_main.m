@@ -64,6 +64,7 @@ simulate_box()
 
 %% Run Simulation
 
+
 function X_list = simulate_box()
     %define system parameters
     box_params = struct();
@@ -84,7 +85,7 @@ function X_list = simulate_box()
     vy0 = 3;
     omega0 = 3;
     V0 = [x0;y0;theta0;vx0;vy0;omega0];
-    tspan = linspace(1,10,100);
+    tspan = [0, 5];
     h_ref = 0.001;
     p = 3;
     error_desired = 0.0001;
@@ -116,11 +117,18 @@ function X_list = simulate_box()
     x_dist = [dist dist -dist -dist dist];
     y_dist = [dist -dist -dist dist dist];
     
+    spring_1 = initialize_spring_plot(50,0.1);
+    spring_2 = initialize_spring_plot(50,0.1);
+    spring_3 = initialize_spring_plot(50,0.1);
+    spring_4 = initialize_spring_plot(50,0.1);
+    spring_list = [spring_1, spring_2, spring_3, spring_4];
+
+    P1 = [box_params.P_world(1,1);box_params.P_world(2,1)]
     %for j = 1:length(box_params.P_world)
         for i = 1:length(t_list)
-            P1 = [box_params.P_world(1,1);box_params.P_world(2,1)];
-            P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist];
-            update_spring_plot(spring_plot_struct,P1,P2)
+
+            P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist]
+            update_spring_plot(spring_list(i),P1(i),P2(i))
             drawnow;
             plot(X_list(1,i) - x_dist, X_list(2,i) - y_dist)
             pause(0.1)
