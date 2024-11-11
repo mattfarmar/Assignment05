@@ -64,6 +64,19 @@ simulate_box()
 
 %% Run Simulation
 
+w = 0.1;
+num_springs = length(box_params.k_list);
+for i = 1:num_springs
+    spring_plots(i) = initialize_spring_plot(num_zigs,w);
+end
+
+for i = 1:length(t_list)
+    t = t_list(i);
+    V = Vlist(i,:);
+    % stealing vaughn's code
+end
+
+
 
 function X_list = simulate_box()
     %define system parameters
