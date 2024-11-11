@@ -14,9 +14,11 @@ my_rate_func = @(V_in) box_rate_func(t_in,V_in,box_params);
 V_eq = multi_newton_solver(my_rate_func, [1; 1; 0; 0; 0; 0], true);
 
 %% Linearization
-J_approx = approximate_jacobian(V_eq);
+
+J_approx = approximate_jacobian(my_rate_func, V_eq)
 
 my_linear_rate = @(t_in,V_in) J_approx*(V_in-V_eq);
+%my_linear_rate(t_in, V_in);
 
 %% Modal Analysis
 U_mode = %your code here (use eig)
