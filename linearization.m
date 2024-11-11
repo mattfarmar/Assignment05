@@ -15,18 +15,18 @@ V_eq = multi_newton_solver(my_rate_func, [1; 1; 0; 0; 0; 0], true);
 
 %% Linearization
 
-J_approx = approximate_jacobian(my_rate_func, V_eq)
+J_approx = approximate_jacobian(my_rate_func, V_eq);
 
 my_linear_rate = @(t_in,V_in) J_approx*(V_in-V_eq);
 %my_linear_rate(t_in, V_in);
 
 %% Modal Analysis
-U_mode = %your code here (use eig)
-omega_n = %your code here (use eig)
+U_mode = 0;%your code here (use eig)
+omega_n = 0;%your code here (use eig)
 %small number
-epsilon = %your code here
+epsilon = 0;%your code here
 V0 = Veq + epsilon*[Umode;0;0;0];
-tspan = %your code here
+tspan = 0;%your code here
 %run the integration of nonlinear system
 % [tlist_nonlinear,Vlist_nonlinear] =...
 % your_integrator(my_rate_func,tspan,V0,...);

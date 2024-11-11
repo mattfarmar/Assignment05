@@ -59,11 +59,11 @@ box_params.P_box = [
 ];
 
 [ax,ay,atheta] = compute_accel(0,0,0,box_params);
-clf
-simulate_box()
+
 
 %% Run Simulation
-
+clf
+simulate_box()
 
 function X_list = simulate_box()
     %define system parameters
@@ -72,8 +72,8 @@ function X_list = simulate_box()
     box_params.I = 10;
     box_params.k_list = [3 3 3 3];
     box_params.l0_list = [4 4 4 4];
-    box_params.P_world = [0 0 5 5 0; 0 5 5 0 0];
-    box_params.P_box = [2 2 4 4 2; 2 4 4 2 2];
+    box_params.P_world = [-3 -3 3 3; -3 3 3 -3];
+    box_params.P_box = [-1 -1 1 -1; -1 1 1 -1];
     box_params.g = -9.81;
     %load the system parameters into the rate function
     %via an anonymous function
@@ -81,9 +81,9 @@ function X_list = simulate_box()
     x0 = 2.5;
     y0 = 2.5;
     theta0 = 0;
-    vx0 = 3;
-    vy0 = 3;
-    omega0 = 3;
+    vx0 = 0;
+    vy0 = 0;
+    omega0 = 0;
     V0 = [x0;y0;theta0;vx0;vy0;omega0];
     tspan = [0, 5];
     h_ref = 0.001;
@@ -102,38 +102,46 @@ function X_list = simulate_box()
     9017/3168, -355/33, 46732/5247, 49/176, -5103/18656, 0,0;...
     35/384, 0, 500/1113, 125/192, -2187/6784, 11/84,0];
     %run the integration
-    [t_list,X_list,h_avg, num_evals, percent_failed] = explicit_RK_variable_step_integration ...
-(my_rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired)
+    [t_list,X_list,~, ~, ~] = explicit_RK_variable_step_integration ...
+(my_rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired);
 
-    num_zigs = 5;
+    num_zigs = 50;
     w = .1;
     hold on;
-    spring_plot_struct = initialize_spring_plot(num_zigs,w);
+    %spring_plot_struct = initialize_spring_plot(num_zigs,w);
     axis equal; axis square;
-    axis([0,5,0,5]);
+    axis([-5,5,-5,5]);
     max(box_params.P_box, [], 'all') 
     min(box_params.P_box, [], 'all')
     dist = (max(box_params.P_box, [], 'all') - min(box_params.P_box, [], 'all')) / 2;
     x_dist = [dist dist -dist -dist dist];
     y_dist = [dist -dist -dist dist dist];
     
-    spring_1 = initialize_spring_plot(50,0.1);
-    spring_2 = initialize_spring_plot(50,0.1);
-    spring_3 = initialize_spring_plot(50,0.1);
-    spring_4 = initialize_spring_plot(50,0.1);
+    spring_1 = initialize_spring_plot(num_zigs,w);
+    spring_2 = initialize_spring_plot(num_zigs,w);
+    spring_3 = initialize_spring_plot(num_zigs,w);
+    spring_4 = initialize_spring_plot(num_zigs,w);
     spring_list = [spring_1, spring_2, spring_3, spring_4];
 
-    P1 = [box_params.P_world(1,1);box_params.P_world(2,1)]
-    %for j = 1:length(box_params.P_world)
-        for i = 1:length(t_list)
+    P1 = [box_params.P_world(1,1);box_params.P_world(2,1)];
+    for i = 1:length(t_list)
+        for j = 1:length(box_params.P_world)
+            %P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist]
 
-            P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist]
-            update_spring_plot(spring_list(i),P1(i),P2(i))
+            Plist_world = compute_rbt(x0,y0,theta0,box_params.P_box);
+            P2 = Plist_world(:,2);
+
+            update_spring_plot(spring_list(j),P1,P2)
             drawnow;
             plot(X_list(1,i) - x_dist, X_list(2,i) - y_dist)
             pause(0.1)
+            [ax,ay,at]=compute_accel(x0,y0,theta0,box_params);
+            x0 = x0+ax;
+            y0 = y0+ay;
+            theta0 = theta0+at;
         end
-    %end
+        box_params.P_box = Plist_world;
+    end
 
 end
 
