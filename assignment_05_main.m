@@ -123,17 +123,20 @@ function X_list = simulate_box()
     spring_4 = initialize_spring_plot(num_zigs,w);
     spring_list = [spring_1, spring_2, spring_3, spring_4];
 
-    P1 = [box_params.P_world(1,1);box_params.P_world(2,1)];
+    
     for i = 1:length(t_list)
         for j = 1:length(box_params.P_world)
             %P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist]
-
+            x0;
+            y0;
+            theta0;
+            box_params.P_box;
             Plist_world = compute_rbt(x0,y0,theta0,box_params.P_box);
-            P2 = Plist_world(:,2);
-
+            P2 = [Plist_world(1,j); Plist_world(2,j)];
+            P1 = [box_params.P_world(1,j);box_params.P_world(2,j)];
             update_spring_plot(spring_list(j),P1,P2)
             drawnow;
-            plot(X_list(1,i) - x_dist, X_list(2,i) - y_dist)
+            %plot(X_list(1,i) - x_dist, X_list(2,i) - y_dist)
             pause(0.1)
             [ax,ay,at]=compute_accel(x0,y0,theta0,box_params);
             x0 = x0+ax;
