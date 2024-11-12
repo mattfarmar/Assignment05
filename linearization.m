@@ -21,6 +21,7 @@ my_linear_rate = @(t_in,V_in) J_approx*(V_in-V_eq);
 %my_linear_rate(t_in, V_in);
 
 %% Modal Analysis
+%[U_mode, omega_n] = eig(Q)
 U_mode = 0;%your code here (use eig)
 omega_n = 0;%your code here (use eig)
 %small number
