@@ -117,7 +117,7 @@ function simulate_box()
     
     spring_list = {spring_1, spring_2, spring_3, spring_4};
     
-    [~]=tic;
+    tic;
     
     for i = 1:length(t_list)
         for j = 1:length(box_params.P_world)
