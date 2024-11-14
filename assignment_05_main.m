@@ -50,10 +50,121 @@ box_params.P_box = [
 
 [ax,ay,atheta] = compute_accel(0,0,0,box_params);
 
-%% Test spring plotting
+%% testing with mode
+% initialize figure
 
-%spring_plotting_example()
+box_params = get_box_params();
 
+%load the system parameters into the rate function
+%via an anonymous function
+my_rate_func = @(t_in,V_in) box_rate_func(t_in,V_in,box_params);
+x0 = 0;
+y0 = 0;
+theta0 = 0;
+vx0 = 0;
+vy0 = -3;
+omega0 = -3;
+V0 = [x0;y0;theta0;vx0;vy0;omega0];
+tspan = [0, 10];
+
+h_ref = 0.001;
+p = 3;
+error_desired = 0.0001;
+
+DormandPrince = struct();
+DormandPrince.C = [0, 1/5, 3/10, 4/5, 8/9, 1, 1];
+DormandPrince.B = [35/384, 0, 500/1113, 125/192, -2187/6784, 11/84, 0;...
+5179/57600, 0, 7571/16695, 393/640, -92097/339200, 187/2100, 1/40];
+DormandPrince.A = [0,0,0,0,0,0,0;
+1/5, 0, 0, 0,0,0,0;...
+3/40, 9/40, 0, 0, 0, 0,0;...
+44/45, -56/15, 32/9, 0, 0, 0,0;...
+19372/6561, -25360/2187, 64448/6561, -212/729, 0, 0,0;...
+9017/3168, -355/33, 46732/5247, 49/176, -5103/18656, 0,0;...
+35/384, 0, 500/1113, 125/192, -2187/6784, 11/84,0];
+
+t_in = 0;
+V_in = [1; 1; 0; 0; 0; 0];
+
+my_rate_func = @(V_in) box_rate_func(t_in,V_in,box_params);
+
+V_eq = multi_newton_solver(my_rate_func, V_in, true);
+
+J_approx = approximate_jacobian(my_rate_func, V_eq);
+my_rate_func = @(t_in,V_in) box_rate_func(t_in,V_in,box_params);
+
+Q = -J_approx(4:6,1:3);
+[U_mode, omega_n] = eig(Q);
+
+
+% MODE 1
+U_mode2 = U_mode(:,2);
+omega_n2 = omega_n(2,2);
+epsilon = 0.05
+V0 = V_eq + epsilon*[U_mode2;0;0;0];
+
+
+%     run the integration
+[t_list,X_list,~, ~, ~] = explicit_RK_variable_step_integration ...
+(my_rate_func,tspan,V0,h_ref,DormandPrince,p,error_desired);
+
+num_zigs = 50;
+w = .1;
+hold on;
+%spring_plot_struct = initialize_spring_plot(num_zigs,w);
+axis equal; axis square;
+axis(3*[-5,5,-5,5]);
+
+box_plot = plot(0,0,'k','linewidth',2);
+spring_1 = initialize_spring_plot(num_zigs,w);
+spring_2 = initialize_spring_plot(num_zigs,w);
+spring_3 = initialize_spring_plot(num_zigs,w);
+spring_4 = initialize_spring_plot(num_zigs,w);
+
+spring_list = {spring_1, spring_2, spring_3, spring_4};
+
+tic;
+
+%mypath1 = 'C:\Users\ldao\Downloads\';
+%fname='mode_2_vibration.avi';
+%input_fname = [mypath1,fname];
+
+% create a videowriter, which will write frames to the animation file
+%writerObj = VideoWriter(input_fname);
+
+% must call open before writing any frames
+%open(writerObj);
+
+fig1 = figure(1);
+title("Mode 2 Vibration")
+hold on
+
+for i = 1:length(t_list)
+    for j = 1:length(box_params.P_world)
+        %P2 = [X_list(1,i) - x_dist;X_list(2,i) - y_dist]
+        x0 = X_list(1,i);
+        y0 = X_list(2,i);
+        theta0 = X_list(3,i);
+     
+        box_params.P_box;
+        Plist_world = compute_rbt(x0,y0,theta0,box_params.P_box);
+        Plist_box = compute_rbt(x0,y0,theta0,box_params.boundary_pts);
+
+        set(box_plot,'xdata',Plist_box(1,:),'ydata',Plist_box(2,:));
+        P2 = Plist_world(:,j);
+        P1 = box_params.P_world(:,j);
+        update_spring_plot(spring_list{j},P1,P2)
+        
+        [~]=toc;
+        
+    end
+    drawnow;
+   % current_frame = getframe(fig1);
+    %writeVideo(writerObj,current_frame)
+    pause(0.01);
+    
+end
+%close(writerObj);
 %% Run Simulation
 clf
 simulate_box()
@@ -142,8 +253,7 @@ function simulate_box()
     end
 end
 
-
-
+%% spring plot functions
 function spring_plotting_example()
     num_zigs = 5;
     w = .1;
