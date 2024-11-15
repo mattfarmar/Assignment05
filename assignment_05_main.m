@@ -96,12 +96,14 @@ my_rate_func = @(t_in,V_in) box_rate_func(t_in,V_in,box_params);
 Q = -J_approx(4:6,1:3);
 [U_mode, omega_n] = eig(Q);
 
+omega_n = sqrt(omega_n); 
 
-% MODE 1
-U_mode2 = U_mode(:,2);
-omega_n2 = omega_n(2,2);
-epsilon = 0.05
-V0 = V_eq + epsilon*[U_mode2;0;0;0];
+
+% MODE
+U_mode1 = U_mode(:,1);
+omega_n1 = omega_n(1,1);
+epsilon = 0.5;
+V0 = V_eq + epsilon*[U_mode1;0;0;0];
 
 
 %     run the integration
@@ -125,18 +127,18 @@ spring_list = {spring_1, spring_2, spring_3, spring_4};
 
 tic;
 
-%mypath1 = 'C:\Users\ldao\Downloads\';
-%fname='mode_2_vibration.avi';
-%input_fname = [mypath1,fname];
+mypath1 = 'C:\Users\ldao\Downloads\';
+fname='mode_1_vibration.avi';
+input_fname = [mypath1,fname];
 
 % create a videowriter, which will write frames to the animation file
-%writerObj = VideoWriter(input_fname);
+writerObj = VideoWriter(input_fname);
 
 % must call open before writing any frames
-%open(writerObj);
+open(writerObj);
 
 fig1 = figure(1);
-title("Mode 2 Vibration")
+title("Mode 1 Vibration")
 hold on
 
 for i = 1:length(t_list)
@@ -159,12 +161,12 @@ for i = 1:length(t_list)
         
     end
     drawnow;
-   % current_frame = getframe(fig1);
-    %writeVideo(writerObj,current_frame)
+    current_frame = getframe(fig1);
+    writeVideo(writerObj,current_frame)
     pause(0.01);
     
 end
-%close(writerObj);
+close(writerObj);
 %% Run Simulation
 clf
 simulate_box()

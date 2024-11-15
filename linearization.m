@@ -62,6 +62,8 @@ legend('Nonlinear', 'Linear')
 Q = -J_approx(4:6,1:3);
 [U_mode, omega_n] = eig(Q);
 
+omega_n = sqrt(omega_n);
+
 t_list = linspace(0,10,500);
 
 
@@ -69,7 +71,7 @@ t_list = linspace(0,10,500);
 U_mode1 = U_mode(:,1);
 omega_n1 = omega_n(1,1);
 
-epsilon = 0.05;
+epsilon = 0.005;
 V0 = V_eq + epsilon*[U_mode1;0;0;0];
 
 
@@ -90,17 +92,17 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal1, 'r')
-title('Time vs. X')
+title('Time vs. X (Mode 1)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal1, 'r')
-title('Time vs. Y')
+title('Time vs. Y (Mode 1)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal1, 'r')
-title('Time vs. Theta')
+title('Time vs. Theta (Mode 1)')
 legend('Nonlinear', 'Modal')
 
 % mode 2
@@ -126,17 +128,17 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal2, 'r')
-title('Time vs. X')
+title('Time vs. X (Mode 2)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal2, 'r')
-title('Time vs. Y')
+title('Time vs. Y (Mode 2)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal2, 'r')
-title('Time vs. Theta')
+title('Time vs. Theta (Mode 2)')
 legend('Nonlinear', 'Modal')
 
 % mode 3
@@ -162,17 +164,17 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal3, 'r')
-title('Time vs. X')
+title('Time vs. X (Mode 3)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal3, 'r')
-title('Time vs. Y')
+title('Time vs. Y (Mode 3)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal3, 'r')
-title('Time vs. Theta')
+title('Time vs. Theta (Mode 3)')
 legend('Nonlinear', 'Modal')
 
 %% FUNCTIONS
