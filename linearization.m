@@ -92,18 +92,22 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal1, 'r')
-title('Time vs. X (Mode 1)')
+ylabel('X')
+title('X vs. Time (Mode 1)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal1, 'r')
-title('Time vs. Y (Mode 1)')
+ylabel('Y')
+title('Y vs. Time (Mode 1)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal1, 'r')
-title('Time vs. Theta (Mode 1)')
+ylabel('Theta')
+title('Theta vs. Time (Mode 1)')
 legend('Nonlinear', 'Modal')
+xlabel('Time (s)')
 
 % mode 2
 U_mode2 = U_mode(:,2);
@@ -128,18 +132,22 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal2, 'r')
-title('Time vs. X (Mode 2)')
+ylabel('X')
+title('X vs. Time (Mode 2)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal2, 'r')
-title('Time vs. Y (Mode 2)')
+ylabel('Y')
+title('Y vs. Time (Mode 2)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal2, 'r')
-title('Time vs. Theta (Mode 2)')
+ylabel('Theta')
+title('Theta vs. Time (Mode 2)')
 legend('Nonlinear', 'Modal')
+xlabel('Time (s)')
 
 % mode 3
 U_mode3 = U_mode(:,3);
@@ -164,18 +172,22 @@ subplot(3,1,1)
 plot(tlist_nonlinear, Vlist_nonlinear(1,:), 'b')
 hold on
 plot(t_list, x_modal3, 'r')
-title('Time vs. X (Mode 3)')
+ylabel('X')
+title('X vs. Time (Mode 3)')
 subplot(3,1,2)
 plot(tlist_nonlinear, Vlist_nonlinear(2,:), 'b')
 hold on
 plot(t_list, y_modal3, 'r')
-title('Time vs. Y (Mode 3)')
+ylabel('Y')
+title('Y vs. Time (Mode 3)')
 subplot(3,1,3)
 plot(tlist_nonlinear, Vlist_nonlinear(3,:), 'b')
 hold on
 plot(t_list, theta_modal3, 'r')
-title('Time vs. Theta (Mode 3)')
+ylabel('Theta')
+title('Theta vs. Time (Mode 3)')
 legend('Nonlinear', 'Modal')
+xlabel('Time (s)')
 
 %% FUNCTIONS
 %updates spring plotting object so that spring is plotted
